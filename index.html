@@ -291,10 +291,68 @@
             .validate-btn { margin-left: 0; margin-top: 1rem; }
             .container { padding: 1rem; }
         }
+
+        /* Ajout des styles pour l'écran de démarrage */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .start-button {
+            font-family: 'Pirata One', cursive;
+            font-size: 2rem;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #a16207, #92400e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .start-button:active {
+            transform: translateY(1px);
+        }
+
+        .start-title {
+            font-size: 3rem;
+            color: #fbbf24;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 3px 3px 0px #92400e;
+        }
+
+        .game-content {
+            display: none; /* Caché par défaut */
+        }
     </style>
+    <audio id="magicAudio" src="motmagique.mp3" preload="auto"></audio>
+    <audio id="successSound" src="lemeilleur.mp3" preload="auto"></audio>
+    <audio id="errorSound" src="pwahaha.mp3" preload="auto"></audio>
 </head>
 <body>
-    <div class="container">
+    <div class="start-screen" id="startScreen">
+        <h1 class="start-title">L'Énigme du Corsaire</h1>
+        <button class="start-button" id="startButton">Démarrer l'aventure</button>
+    </div>
+
+    <div class="container game-content" id="gameContent">
         <h1 class="title">L'Énigme du Corsaire</h1>
         <p class="subtitle">Trouve le mot magique pour ouvrir le coffre au trésor, moussaillon !</p>
         
@@ -357,8 +415,10 @@
             const word = input.value.toLowerCase().trim();
             
             if (word === correctWord) {
+                document.getElementById('successSound').play().catch(e => console.log("Erreur de lecture du son de succès:", e));
                 showSuccess();
             } else {
+                document.getElementById('errorSound').play().catch(e => console.log("Erreur de lecture du son d'erreur:", e));
                 showError();
                 attempts++;
             }
@@ -444,6 +504,20 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Gestion du bouton de démarrage
+        document.getElementById('startButton').addEventListener('click', function() {
+            const startScreen = document.getElementById('startScreen');
+            const gameContent = document.getElementById('gameContent');
+            const audio = document.getElementById('magicAudio');
+            
+            // Jouer le son d'introduction
+            audio.play().catch(e => console.log("Erreur de lecture du son:", e));
+            
+            // Masquer l'écran de démarrage et afficher le jeu
+            startScreen.style.display = 'none';
+            gameContent.style.display = 'block';
+        });
     </script>
 </body>
 </html>
