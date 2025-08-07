@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Énigme du Corsaire</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Creepster&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pirata One', cursive;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1e3a8a 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Vagues animées en arrière-plan */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 100'%3E%3Cpath d='M0,50 Q250,0 500,50 T1000,50 V100 H0 Z' fill='%23ffffff10'/%3E%3C/svg%3E") repeat-x;
+            animation: waves 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes waves {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            font-family: 'Creepster', cursive;
+            font-size: 3rem;
+            color: #fbbf24;
+            text-shadow: 3px 3px 0px #92400e, 6px 6px 10px rgba(0,0,0,0.5);
+            margin-bottom: 1rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 3px 3px 0px #92400e, 6px 6px 10px rgba(0,0,0,0.5), 0 0 20px #fbbf24; }
+            to { text-shadow: 3px 3px 0px #92400e, 6px 6px 10px rgba(0,0,0,0.5), 0 0 30px #f59e0b, 0 0 40px #f59e0b; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #e5e7eb;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        .game-area {
+            background: rgba(146, 64, 14, 0.3);
+            border: 3px solid #92400e;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .magic-input {
+            font-family: 'Pirata One', cursive;
+            font-size: 1.5rem;
+            padding: 1rem 1.5rem;
+            border: 3px solid #92400e;
+            border-radius: 10px;
+            background: #fbbf24;
+            color: #92400e;
+            width: 300px;
+            max-width: 100%;
+            text-align: center;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .magic-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2), 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+
+        .validate-btn {
+            font-family: 'Pirata One', cursive;
+            font-size: 1.3rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #92400e, #a16207);
+            color: #fbbf24;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.4);
+        }
+
+        .validate-btn:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-message {
+            background: rgba(220, 38, 38, 0.2);
+            border: 2px solid #dc2626;
+            color: #fecaca;
+        }
+
+        /* Coffre au trésor */
+        .treasure-chest {
+            width: 200px;
+            height: 150px;
+            margin: 2rem auto;
+            position: relative;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s ease;
+        }
+
+        .treasure-chest.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .chest-bottom {
+            width: 200px;
+            height: 100px;
+            background: linear-gradient(45deg, #92400e, #a16207);
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            border: 3px solid #451a03;
+        }
+
+        .chest-top {
+            width: 200px;
+            height: 80px;
+            background: linear-gradient(45deg, #a16207, #92400e);
+            border-radius: 20px 20px 0 0;
+            position: absolute;
+            top: -50px;
+            border: 3px solid #451a03;
+            transform-origin: bottom;
+            transition: transform 1s ease;
+        }
+
+        .chest-top.open {
+            transform: rotateX(-120deg);
+        }
+
+        .chest-lock {
+            width: 30px;
+            height: 40px;
+            background: #fbbf24;
+            border: 2px solid #f59e0b;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .chest-lock::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            border: 3px solid #f59e0b;
+            border-radius: 50%;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+        }
+
+        /* Parchemin */
+        .scroll {
+            width: 90%;
+            max-width: 600px;
+            margin: 2rem auto;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+
+        .scroll.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-content {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            border: 3px solid #92400e;
+            border-radius: 10px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .scroll-content::before,
+        .scroll-content::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background: #92400e;
+            top: 0;
+        }
+
+        .scroll-content::before {
+            left: -10px;
+            border-radius: 10px 0 0 10px;
+        }
+
+        .scroll-content::after {
+            right: -10px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .enigma-text {
+            font-family: 'Pirata One', cursive;
+            font-size: 1.3rem;
+            color: #92400e;
+            line-height: 1.6;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+        }
+
+        .enigma-title {
+            font-family: 'Creepster', cursive;
+            font-size: 2rem;
+            color: #92400e;
+            margin-bottom: 1rem;
+            text-decoration: underline;
+        }
+
+        /* Animations de particules d'or */
+        .gold-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fbbf24;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2rem; }
+            .magic-input { width: 250px; font-size: 1.2rem; }
+            .validate-btn { margin-left: 0; margin-top: 1rem; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">L'Énigme du Corsaire</h1>
+        <p class="subtitle">Trouve le mot magique pour ouvrir le coffre au trésor, moussaillon !</p>
+        
+        <div class="game-area">
+            <div class="input-group">
+                <input type="text" class="magic-input" id="magicWord" placeholder="Mot magique..." maxlength="20">
+                <button class="validate-btn" onclick="checkWord()">⚓ Valider ⚓</button>
+            </div>
+            
+            <div class="message" id="message"></div>
+            
+            <div class="treasure-chest" id="treasureChest">
+                <div class="chest-top" id="chestTop">
+                    <div class="chest-lock"></div>
+                </div>
+                <div class="chest-bottom"></div>
+            </div>
+        </div>
+        
+        <div class="scroll" id="scroll">
+            <div class="scroll-content">
+                <h2 class="enigma-title">🏴‍☠️ Énigme du Capitaine 🏴‍☠️</h2>
+                <p class="enigma-text">
+                    "Dans les profondeurs de l'océan bleu,<br>
+                    Où les sirènes chantent leurs vœux,<br>
+                    Se cache un trésor précieux,<br>
+                    Gardé par un monstre aux mille yeux.<br><br>
+                    
+                    Cherche là où le soleil se couche,<br>
+                    Où les vagues embrassent la roche,<br>
+                    Et quand la lune sera proche,<br>
+                    Le secret sortira de sa poche !"<br><br>
+                    
+                    <strong>🗺️ Rendez-vous au point X marqué sur la carte ! 🗺️</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const correctWord = "corsaire";
+        const errorMessages = [
+            "Tu crois que c'est si facile, moussaillon ?",
+            "Même un crabe saurait mieux deviner !",
+            "Essaye encore, capitaine sans boussole !",
+            "Arrr ! Ce n'est pas le bon mot, matelot !",
+            "Les sirènes se moquent de ta réponse !",
+            "Ton perroquet ferait mieux que toi !",
+            "Retourne à l'école des pirates !",
+            "Le kraken rigole de ta tentative !",
+            "Même Barbe Noire aurait trouvé !",
+            "Tu navigues à vue, capitaine !"
+        ];
+
+        let attempts = 0;
+
+        function checkWord() {
+            const input = document.getElementById('magicWord');
+            const message = document.getElementById('message');
+            const word = input.value.toLowerCase().trim();
+            
+            if (word === correctWord) {
+                showSuccess();
+            } else {
+                showError();
+                attempts++;
+            }
+            
+            input.value = '';
+        }
+
+        function showSuccess() {
+            const message = document.getElementById('message');
+            const chest = document.getElementById('treasureChest');
+            const chestTop = document.getElementById('chestTop');
+            const scroll = document.getElementById('scroll');
+            
+            message.innerHTML = "🎉 Bravo capitaine ! Le coffre s'ouvre ! 🎉";
+            message.className = "message";
+            message.style.background = "rgba(34, 197, 94, 0.2)";
+            message.style.border = "2px solid #22c55e";
+            message.style.color = "#bbf7d0";
+            
+            // Afficher et ouvrir le coffre
+            chest.classList.add('show');
+            
+            setTimeout(() => {
+                chestTop.classList.add('open');
+                createGoldParticles();
+            }, 500);
+            
+            // Afficher le parchemin après l'ouverture du coffre
+            setTimeout(() => {
+                scroll.classList.add('show');
+            }, 2000);
+        }
+
+        function showError() {
+            const message = document.getElementById('message');
+            const randomMessage = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+            
+            message.innerHTML = "💀 " + randomMessage + " 💀";
+            message.className = "message error-message";
+            
+            // Animation de secousse
+            message.style.animation = "shake 0.5s ease-in-out";
+            setTimeout(() => {
+                message.style.animation = "";
+            }, 500);
+        }
+
+        function createGoldParticles() {
+            const chest = document.getElementById('treasureChest');
+            const rect = chest.getBoundingClientRect();
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'gold-particle';
+                    particle.style.left = (rect.left + rect.width/2 - 5) + 'px';
+                    particle.style.top = (rect.top + rect.height/2) + 'px';
+                    particle.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    document.body.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        // Permettre la validation avec la touche Entrée
+        document.getElementById('magicWord').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkWord();
+            }
+        });
+
+        // Animation de secousse pour les erreurs
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
